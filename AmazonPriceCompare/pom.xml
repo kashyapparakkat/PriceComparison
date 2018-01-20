@@ -1,0 +1,176 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>Amazon</groupId>
+  <artifactId>AmazonPriceCompare</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <properties>
+          <seleniumVersion>3.8.1</seleniumVersion>
+  
+  </properties>
+<dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+	 <groupId>com.jayway.restassured</groupId>
+	 <artifactId>rest-assured</artifactId>
+	 <version>2.1.0</version>
+	 <scope>test</scope>
+	</dependency>
+	<dependency>
+    <groupId>io.rest-assured</groupId>
+    <artifactId>json-schema-validator</artifactId>
+    <version>3.0.3</version>
+	</dependency>
+	<dependency>
+    <groupId>org.json</groupId>
+    <artifactId>json</artifactId>
+    <version>20170516</version>
+	</dependency>
+	<dependency>
+    <groupId>com.relevantcodes</groupId>
+    <artifactId>extentreports</artifactId>
+    <version>2.40.2</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.testng/testng -->
+<dependency>
+    <groupId>org.testng</groupId>
+    <artifactId>testng</artifactId>
+    <version>6.11</version>
+    <scope>test</scope>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
+<dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi-ooxml</artifactId>
+    <version>3.9</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/net.sourceforge.javacsv/javacsv -->
+<dependency>
+    <groupId>net.sourceforge.javacsv</groupId>
+    <artifactId>javacsv</artifactId>
+    <version>2.0</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
+<dependency>
+    <groupId>com.opencsv</groupId>
+    <artifactId>opencsv</artifactId>
+    <version>3.3</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/com.jayway.jsonpath/json-path -->
+<dependency>
+    <groupId>com.jayway.jsonpath</groupId>
+    <artifactId>json-path</artifactId>
+    <version>2.2.0</version>
+</dependency>
+
+<dependency>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-ie-driver</artifactId>
+                    <version>${seleniumVersion}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-chrome-driver</artifactId>
+                    <version>${seleniumVersion}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-firefox-driver</artifactId>
+                    <version>${seleniumVersion}</version>
+                    <scope>test</scope>
+                </dependency>
+                <!-- <dependency>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-htmlunit-driver</artifactId>
+                    <version>${seleniumVersion}</version>
+                    <scope>test</scope>
+                </dependency> -->
+                <dependency>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-java</artifactId>
+                    <version>${seleniumVersion}</version>
+                    <scope>test</scope>
+                </dependency>
+                
+                
+                <dependency>
+       <groupId>org.apache.httpcomponents</groupId>
+       <artifactId>httpclient</artifactId>
+       <version>4.3.5</version>
+   </dependency>
+
+	
+  </dependencies>
+<build>
+<plugins>
+
+
+
+      <plugin>
+        <artifactId>maven-myquery-plugin</artifactId>
+        <version>1.0</version>
+        <configuration>
+          <url>http://www.foobar.com/query</url>
+          <timeout>10</timeout>
+          <options>
+            <option>one</option>
+            <option>two</option>
+            <option>three</option>
+          </options>
+        </configuration>
+      </plugin>
+      			<plugin>
+				<inherited>true</inherited>	
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+				<encoding>UTF-8</encoding>
+				<verbose>true</verbose>
+          		<fork>true</fork>
+          		<compilerVersion>1.7</compilerVersion>
+				</configuration>
+			</plugin>
+ 
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.18.1</version>
+				<configuration>
+				    <forkCount>5</forkCount>
+                    <reuseForks>true</reuseForks>
+        <!-- Sets the VM argument line used when unit tests are run. -->
+        <argLine>${surefireArgLine}</argLine>					<suiteXmlFiles>
+						<suiteXmlFile>testng.xml</suiteXmlFile>
+					</suiteXmlFiles>
+				</configuration>
+			</plugin>
+	
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-failsafe-plugin</artifactId>
+			<version>2.18.1</version>
+ 
+		</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<configuration>
+				<source>1.7</source>
+				<target>1.7</target>
+				<encoding>UTF-8</encoding>
+			</configuration>
+		</plugin>
+    </plugins>
+    </build>
+  
+</project>
