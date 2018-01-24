@@ -1,75 +1,112 @@
 package com.amazon.test;
 
-import org.apache.poi.ss.formula.functions.T;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.testng.annotations.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.amazon.methods.PageBase;
+
+import junit.framework.Assert;
 
 public class ComparePrice {
+	
+	private static String URL_AMAZONE_HOME = "https://www.amazon.com/";
+	private static String URL_AMAZONE_DEPARTMENTS = "https://www.amazon.com/gp/site-directory/ref=nav_shopall_btn";
+	private static String URL_AMAZONE_EXERCISE_AND_FITNESS = "https://www.amazon.com/Exercise-Equipment-Gym-Equipment/b/ref=sd_allcat_sa_sp_exfit?ie=UTF8&node=3407731";
+	private static String URL_EXERCISE_CARDIO= "https://www.amazon.com/Cardio-Life-Fitness/b/ref=amb_link_18?ie=UTF8&node=3407741&pf_rd_m=ATVPDKIKX0DER&pf_rd_s=merchandised-search-leftnav&pf_rd_r=2KW7M9RBT4KVGDTPZVJ9&pf_rd_r=2KW7M9RBT4KVGDTPZVJ9&pf_rd_t=101&pf_rd_p=ba6c51f4-2cff-4532-9410-74c17393ad73&pf_rd_p=ba6c51f4-2cff-4532-9410-74c17393ad73&pf_rd_i=3407731";
+	
+	private static String HOME_ORDERS = "#nav-orders > span.nav-line-2";
+	private static String SPORTS_AND_FITNESS_DEPARTMENT = "#a-page > div.a-container.fsdContainer.fsdFullWidthImage > div > div:nth-child(5) > div:nth-child(2) > div > a:nth-child(9)"; 
+	private static String TITLE_EXERCISE_AND_FITNESS = "#merchandised-content >div:nth-child(3) > div > div.a-row.a-spacing-top-base > h1";
+	private static String TITLE_CARDIO = "#merchandised-content > div.unified_widget.pageBanner > h1 > b";
+	private static String ALL_CARDIO_TRAINING = "#a-page > div.a-fixed-left-flipped-grid.s-padding-left-small.s-padding-right-small.s-span-page.a-spacing-top-small > div > div.a-fixed-left-grid-col.a-col-left > div > div:nth-child(1) > div.left_nav.browseBox > p:nth-child(9) > a";
+	private static String CARDIO_ITEM_TITLE = "#productTitle";
+	
+	@Test
+	public void test() {
+    // TODO Auto-generated method stub
+    	
+    String expath = "//Users//300013717//Drivers//chromedriver";
 
-    public static void main(String[] args) {
-        String expath = "C:\\Users\\cibin\\Downloads\\chromedriver_win32\\chromedriver.exe";
+    System.setProperty("webdriver.chrome.driver", expath);
+    
+    
+    ChromeOptions options = new ChromeOptions();
+    options.addExtensions(new File("//Users//300013717//Downloads//MyFiles//PriceBlinkCouponsandPriceComparison.crx"));
 
-        System.setProperty("webdriver.chrome.driver", expath);
+    DesiredCapabilities capabilities = new DesiredCapabilities();
+    capabilities.setCapability(ChromeOptions.CAPABILITY, options);
+    ChromeDriver driver = new ChromeDriver(capabilities);
+    System.out.println("Opening extension");
+    
+    options.addArguments("--start-maximized");
 
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("user-data-dir=C:/Users/cibin/AppData/Local/Google/Chrome/User Data");
-        options.addArguments("--start-maximized");
+    //WebDriver driver = new ChromeDriver(options);
 
-        WebDriver driver = new ChromeDriver(options);
+    driver.get(URL_AMAZONE_HOME);
+	PageBase pageBase = new PageBase(driver);
+	Assert.assertTrue(pageBase.isUrlLoaded(URL_AMAZONE_HOME));
+	//Assert.assertTrue(false);
+	Assert.assertTrue(pageBase.isElementPresent(HOME_ORDERS));
+	
+	pageBase.clickOnDepartmentsHome();
+	Assert.assertTrue(pageBase.isUrlLoaded(URL_AMAZONE_DEPARTMENTS));
+	Assert.assertTrue(pageBase.isElementPresent(SPORTS_AND_FITNESS_DEPARTMENT));
+	
+	pageBase.clickOnExerciseAndFitness();
+	Assert.assertTrue(pageBase.isUrlLoaded(URL_AMAZONE_EXERCISE_AND_FITNESS));
+	Assert.assertTrue(pageBase.isElementPresent(ALL_CARDIO_TRAINING));
+	
+	pageBase.clickOnAllCardioTraining();
+	String getCardioUrl = driver.getCurrentUrl();
+	Assert.assertTrue(getCardioUrl.contains("Cardio-Life-Fitness"));
+	Assert.assertTrue(pageBase.isElementPresent(TITLE_CARDIO));
+	
+	
+	int size = pageBase.getTotalCardioItems();
+	
+	//TODO:Need to remove below line later.
+	//size=1;
+	
+	for (int i=1; i<=size; i++){
+		pageBase.clickOnCardioItem(i);
+		Assert.assertTrue(pageBase.isElementPresent(CARDIO_ITEM_TITLE));
+		
+        boolean flag = pageBase.waitTillComparePriceFramePresent();
+        if (flag = true) {
+        	List<String> priceBlinkListUrls = pageBase.getSiteListTocompare();
+            
+            
+            for(String url: priceBlinkListUrls){
 
-        System.out.println("test");
-
-        driver.get("https://www.amazon.com/dp/B00Q31K53M/ref=sspa_dk_detail_4?psc=1");
-        try {
-            Thread.sleep(6000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-//        driver.switchTo().frame("pb-iframe");
-//        ((ChromeDriver) driver).findElementById("comparePricesBtn").click();System.out.println("test");
-        Integer ebay_price = 0;
-        Integer walmart_price = 0;
-        List<WebElement> iframes = driver.findElements(By.tagName("iframe"));
-        if (iframes.size() == 0) {
-            // No frames
-            System.out.println("No priceblink available");
-        } else {
-
-
-            Integer amazon_price = Integer.parseInt(((ChromeDriver) driver).findElement(By.cssSelector("#priceblock_ourprice")).getText().replaceAll("[$,]", ""));
-            List<WebElement> priceBlinkList = driver.findElements(By.cssSelector("#compare-prices-content > ul > li > a"));
-            for (WebElement option : priceBlinkList) {
-                System.out.println("Text :" + option.getAttribute("href"));
-                driver.get(((WebElement) priceBlinkList.get(1)).getAttribute("href"));
-                System.out.println(((ChromeDriver) driver).getCurrentUrl());
+                System.out.println(url);
+                driver.get(url);
+                
                 List<String> pricelist = new ArrayList<String>();
                 if (((ChromeDriver) driver).getCurrentUrl().startsWith("https://www.ebay.com")) {
-//            pricelist.add(
-                    ebay_price = Integer.parseInt(driver.findElements(By.cssSelector("#prcIsum")).toString().replaceAll("[$,]", ""));
-                } else if (((ChromeDriver) driver).getCurrentUrl().startsWith("https://www.walmart.com")) {
-                    walmart_price = Integer.parseInt(driver.findElements(By.cssSelector("body > div.js-content > div > div > div > div > div.atf-content > div > div > div:nth-child(2) > div > div.ResponsiveContainer.prod-ProductPage.prod-DefaultLayout.display-flex-ie-compat.direction-flex-column.width-full > div.prod-AboveTheFoldSection.direction-flex-column-m.display-flex-ie-compat > div.prod-rightContainer.prod-MarginTop--xs.display-flex-ie-compat.direction-flex-column > div:nth-child(1) > div.prod-Bot.prod-PositionedRelative > div > div.prod-BotRow.prod-showBottomBorder.prod-OfferSection.prod-OfferSection-twoPriceDisplay > div > div > div:nth-child(1) > div > span > div > span > span > span")).get(0).getText().replaceAll("[$,]", ""));
+                	if(driver.findElementsByCssSelector("#ListViewInner>li").size()>0) {
+                		System.out.println(pageBase.getAllEbayPrices());
+                	}
                 }
-                driver.navigate().back();
-                System.out.println("asdf");
-
             }
-            System.out.println(amazon_price);
-            System.out.println(ebay_price);
-            System.out.println(walmart_price);
-
-            if(ebay_price<0.9*amazon_price)
-                System.out.println("ebay is cheaper");
-            if(walmart_price<0.9*amazon_price)
-                System.out.println("walmart is cheaper");
-
+		
+    driver.get(getCardioUrl);
+    	Assert.assertTrue(driver.getCurrentUrl().contains("Cardio-Life-Fitness"));
+    	Assert.assertTrue(pageBase.isElementPresent(TITLE_CARDIO));
+		
         }
-
+        else {
+        	System.out.println("The product"+i+"is not having any other sites to compare");
+        }
+	}
     }
+	
+
 }

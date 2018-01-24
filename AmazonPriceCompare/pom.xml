@@ -88,12 +88,7 @@
                     <version>${seleniumVersion}</version>
                     <scope>test</scope>
                 </dependency>
-                <!-- <dependency>
-                    <groupId>org.seleniumhq.selenium</groupId>
-                    <artifactId>selenium-htmlunit-driver</artifactId>
-                    <version>${seleniumVersion}</version>
-                    <scope>test</scope>
-                </dependency> -->
+
                 <dependency>
                     <groupId>org.seleniumhq.selenium</groupId>
                     <artifactId>selenium-java</artifactId>
@@ -107,27 +102,17 @@
        <artifactId>httpclient</artifactId>
        <version>4.3.5</version>
    </dependency>
+   
+   <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>23.0</version>
+</dependency>
 
 	
   </dependencies>
 <build>
 <plugins>
-
-
-
-      <plugin>
-        <artifactId>maven-myquery-plugin</artifactId>
-        <version>1.0</version>
-        <configuration>
-          <url>http://www.foobar.com/query</url>
-          <timeout>10</timeout>
-          <options>
-            <option>one</option>
-            <option>two</option>
-            <option>three</option>
-          </options>
-        </configuration>
-      </plugin>
       			<plugin>
 				<inherited>true</inherited>	
 				<groupId>org.apache.maven.plugins</groupId>
@@ -146,10 +131,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.18.1</version>
 				<configuration>
-				    <forkCount>5</forkCount>
-                    <reuseForks>true</reuseForks>
-        <!-- Sets the VM argument line used when unit tests are run. -->
-        <argLine>${surefireArgLine}</argLine>					<suiteXmlFiles>
+					<suiteXmlFiles>
 						<suiteXmlFile>testng.xml</suiteXmlFile>
 					</suiteXmlFiles>
 				</configuration>
