@@ -30,7 +30,7 @@ public class ComparePrice {
 	private static String CARDIO_ITEM_TITLE = "#productTitle";
 	
 	@Test
-	public void test() {
+	public void test() throws InterruptedException {
     // TODO Auto-generated method stub
     	
     String expath = "//Users//300013717//Drivers//chromedriver";
@@ -39,7 +39,7 @@ public class ComparePrice {
     
     
     ChromeOptions options = new ChromeOptions();
-    options.addExtensions(new File("//Users//300013717//Downloads//MyFiles//PriceBlinkCouponsandPriceComparison.crx"));
+	    options.addExtensions(new File("//Users//300013717//Downloads//MyFiles//PriceBlinkCouponsandPriceComparison.crx"));
 
     DesiredCapabilities capabilities = new DesiredCapabilities();
     capabilities.setCapability(ChromeOptions.CAPABILITY, options);
@@ -49,12 +49,13 @@ public class ComparePrice {
     options.addArguments("--start-maximized");
 
     //WebDriver driver = new ChromeDriver(options);
-
-    driver.get(URL_AMAZONE_HOME);
 	PageBase pageBase = new PageBase(driver);
+    driver.get(URL_AMAZONE_HOME);
 	Assert.assertTrue(pageBase.isUrlLoaded(URL_AMAZONE_HOME));
 	//Assert.assertTrue(false);
 	Assert.assertTrue(pageBase.isElementPresent(HOME_ORDERS));
+    pageBase.closeAllTabsExceptFirst();
+	
 	
 	pageBase.clickOnDepartmentsHome();
 	Assert.assertTrue(pageBase.isUrlLoaded(URL_AMAZONE_DEPARTMENTS));
@@ -76,35 +77,41 @@ public class ComparePrice {
 	//size=1;
 	
 	for (int i=1; i<=size; i++){
+		System.out.println("\nProduct price(after reducing 15% profit used by amazon):"+pageBase.getProductPrice(i));
 		pageBase.clickOnCardioItem(i);
+		System.out.println("\nProduct Name:"+pageBase.getProductTitle());
 		Assert.assertTrue(pageBase.isElementPresent(CARDIO_ITEM_TITLE));
 		
+        Thread.sleep(10000);
         boolean flag = pageBase.waitTillComparePriceFramePresent();
-        if (flag = true) {
+        if (flag) {
         	List<String> priceBlinkListUrls = pageBase.getSiteListTocompare();
             
             
             for(String url: priceBlinkListUrls){
 
-                System.out.println(url);
                 driver.get(url);
+                pageBase.waitTillPageLoadedCompletely();
                 
                 List<String> pricelist = new ArrayList<String>();
                 if (((ChromeDriver) driver).getCurrentUrl().startsWith("https://www.ebay.com")) {
                 	if(driver.findElementsByCssSelector("#ListViewInner>li").size()>0) {
-                		System.out.println(pageBase.getAllEbayPrices());
+                		System.out.println("\nThe price in ebay is "+pageBase.getAllEbayPrices());
                 	}
                 }
+                else if(driver.getCurrentUrl().startsWith("https://www.walmart.com")) {
+                	System.out.println("\n The price in walmart is "+pageBase.getWalmartProductPrice());
+                }
             }
-		
-    driver.get(getCardioUrl);
-    	Assert.assertTrue(driver.getCurrentUrl().contains("Cardio-Life-Fitness"));
-    	Assert.assertTrue(pageBase.isElementPresent(TITLE_CARDIO));
 		
         }
         else {
         	System.out.println("The product"+i+"is not having any other sites to compare");
         }
+    driver.get(getCardioUrl);
+    	Assert.assertTrue(driver.getCurrentUrl().contains("Cardio-Life-Fitness"));
+    	Assert.assertTrue(pageBase.isElementPresent(TITLE_CARDIO));
+        System.out.println("\n\n\n");
 	}
     }
 	
