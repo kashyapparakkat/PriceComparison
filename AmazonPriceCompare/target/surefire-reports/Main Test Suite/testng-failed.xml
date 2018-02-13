@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite guice-stage="DEVELOPMENT" verbose="0" name="Failed suite [Main Test Suite]">
+  <test name="TestNG Test Group(failed)">
+    <classes>
+      <class name="com.amazon.test.ComparePrice">
+        <methods>
+          <include name="test"/>
+        </methods>
+      </class> <!-- com.amazon.test.ComparePrice -->
+    </classes>
+  </test> <!-- TestNG Test Group(failed) -->
+</suite> <!-- Failed suite [Main Test Suite] -->

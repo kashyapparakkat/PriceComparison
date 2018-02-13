@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" ignored="0" total="1" passed="1">
+  <reporter-output>
+  </reporter-output>
+  <suite name="Default suite" duration-ms="1817921" started-at="2018-02-08T17:15:04Z" finished-at="2018-02-08T17:45:22Z">
+    <groups>
+    </groups>
+    <test name="Default test" duration-ms="1817921" started-at="2018-02-08T17:15:04Z" finished-at="2018-02-08T17:45:22Z">
+      <class name="com.amazon.test.ComparePrice">
+        <test-method status="PASS" signature="test()[pri:0, instance:com.amazon.test.ComparePrice@31a5c39e]" name="test" duration-ms="1817890" started-at="2018-02-08T22:45:04Z" finished-at="2018-02-08T23:15:22Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- test -->
+      </class> <!-- com.amazon.test.ComparePrice -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>

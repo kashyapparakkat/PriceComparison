@@ -15,7 +15,7 @@ import com.amazon.methods.PageBase;
 
 import junit.framework.Assert;
 
-public class ComparePrice {
+public class ComparePrice2 {
 	
 	private static String URL_AMAZONE_HOME = "https://www.amazon.com/";
 	private static String URL_AMAZONE_DEPARTMENTS = "https://www.amazon.com/gp/site-directory/ref=nav_shopall_btn";
@@ -37,7 +37,7 @@ public class ComparePrice {
     
 	ArrayList<PriceList> outputWriterList = new ArrayList<PriceList>();
 	
-	@Test
+	//@Test
 	public void test() throws InterruptedException {
 	    // TODO Auto-generated method stub
 	    	
@@ -82,31 +82,28 @@ public class ComparePrice {
 		int size = pageBase.getTotalCardioItems();
 		
 		//TODO:Need to remove below line later.
-		//size=10;
+		size=10;
 		
 		outputWriter.createFileWithHeaders(fileName);
 		
 		for (int i=1; i<=size; i++){
-			try {
 			PriceList priceList1 = new PriceList();
 			
 			
 			String rank = pageBase.clickOnCardioItem(i);
 			System.out.println("\nProduct rank:"+rank);
 
-			//System.out.println("\nProduct Name:"+pageBase.getProductTitle());
+			System.out.println("\nProduct Name:"+pageBase.getProductTitle());
 			
-			System.out.println(5000);
-			pageBase.waitTillProductPriceLoaded(i);
-			double a = Double.parseDouble(pageBase.getProductPrice(i).replaceAll("[$]","").replaceAll(",",""))*0.88;
+			double a = Double.parseDouble(pageBase.getProductPrice(i).replaceAll("[$]",""))*0.85;
 			System.out.println("\nProduct price(after reducing 15% profit used by amazon):"+a);
 			
 			priceList1.setRanking(rank);
-			priceList1.setAmazonReducedPrice(1 * a);
+			priceList1.setAmazonReducedPrice(0.85 * a);
 			
 			priceList1.setAmazonPrice(a);
 			
-			System.out.println("\nProduct Name:"+pageBase.getProductTitle());
+
 			priceList1.setProductTitle(pageBase.getProductTitle());
 			Assert.assertTrue(pageBase.isElementPresent(CARDIO_ITEM_TITLE));
 			
@@ -191,15 +188,8 @@ public class ComparePrice {
 	        System.out.println("\n\n\n");
 	        
 			outputWriter.writeOrAppendToFile(fileName, priceList1);
-			}
-			catch(Exception ex){
-        		System.out.println(i+"th element failed");
-        	}
 
 		}
-	    
-	
-		//outputWriter.writeCsvFile(fileName,outputWriterList);
-		}
+	    		}
 
 }
