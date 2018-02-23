@@ -7,13 +7,22 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+
+import com.amazon.methods.SearchProductTuple;
 
 
 
 
-public class outputWriter {
+public class OutputWriter {
 
 	
 	//Delimiter used in CSV file
@@ -136,6 +145,8 @@ public class outputWriter {
 			// true = append file
 			fileWriter = new FileWriter(file.getAbsoluteFile(), true);
 			
+			if(priceList.getProfitPercent()<30) {
+			
 			fileWriter.append(StringEscapeUtils.escapeCsv(String.valueOf(priceList.getRanking())));
 			fileWriter.append(COMMA_DELIMITER);
 			
@@ -179,6 +190,7 @@ public class outputWriter {
 			bw.write(data);*/
 
 			System.out.println("Done");
+			}
 
 		} catch (IOException e) {
 
@@ -234,4 +246,131 @@ public class outputWriter {
 
 		}
 	}
+	
+	public static List<String> readFromExcelFile(String excelFile){
+		// Creating a Workbook from an Excel file (.xls or .xlsx)
+		List<String> urlList = new ArrayList<String>();
+        Workbook workbook = null;
+		try {
+			workbook = WorkbookFactory.create(new File(excelFile));
+		} catch (InvalidFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        // Retrieving the number of sheets in the Workbook
+        System.out.println("Workbook has " + workbook.getNumberOfSheets() + " Sheets : ");
+		
+        System.out.println("Retrieving Sheets using for-each loop");
+        Sheet sheet = workbook.getSheetAt(0);
+        
+     // 2. Or you can use a for-each loop to iterate over the rows and columns
+        System.out.println("\n\nIterating over Rows and Columns using for-each loop\n");
+        for (Row row: sheet) {
+            for(Cell cell: row) {
+                String cellValue = cell.getRichStringCellValue().getString();
+                System.out.print(cellValue + "\t");
+                urlList.add(cellValue);
+            }
+            System.out.println();
+        }
+        return urlList;
+	}
+	
+	public static List<String> readFromExcelFileBasedOnRows(String excelFile, int rowStart, int rowEnd){
+		// Creating a Workbook from an Excel file (.xls or .xlsx)
+		List<String> urlList = new ArrayList<String>();
+        Workbook workbook = null;
+		try {
+			workbook = WorkbookFactory.create(new File(excelFile));
+		} catch (InvalidFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        // Retrieving the number of sheets in the Workbook
+        System.out.println("Workbook has " + workbook.getNumberOfSheets() + " Sheets : ");
+		
+        System.out.println("Retrieving Sheets using for-each loop");
+        Sheet sheet = workbook.getSheetAt(0);
+        
+     // 2. Or you can use a for-each loop to iterate over the rows and columns
+        System.out.println("\n\nIterating over Rows and Columns using for-each loop\n");
+        for (Row row: sheet) {
+        	if(row.getRowNum() == rowStart) {
+        		do {
+        			
+            for(Cell cell: row) {
+                String cellValue = cell.getRichStringCellValue().getString();
+                System.out.print(cellValue + "\t");
+                urlList.add(cellValue);
+            }
+        		}while(row.getRowNum() != rowEnd);
+        	}
+            System.out.println();
+        }
+        return urlList;
+	}
+	
+	public static void writeUrlRankToCsvFile(List<SearchProductTuple>productDetails, String url, String fileName) {
+
+		FileWriter fileWriter = null;
+
+		try {
+			File file = new File(fileName);
+
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+
+			// true = append file
+			fileWriter = new FileWriter(file.getAbsoluteFile(), true);
+
+				/*fileWriter.append(url);
+				fileWriter.append(COMMA_DELIMITER);*/
+
+				for(int i =0; i<productDetails.size(); i++) {
+					fileWriter.append(StringEscapeUtils.escapeCsv(String.valueOf(productDetails.get(i).getProductUrl())));
+					fileWriter.append(COMMA_DELIMITER);
+					fileWriter.append(StringEscapeUtils.escapeCsv(String.valueOf(productDetails.get(i).getRank())));
+					fileWriter.append(COMMA_DELIMITER);
+					fileWriter.append(NEW_LINE_SEPARATOR);
+
+				}
+		} catch (IOException e) {
+
+			e.printStackTrace();
+
+		} finally {
+
+			try {
+
+				if (fileWriter != null)
+					fileWriter.close();
+
+			} catch (IOException ex) {
+
+				ex.printStackTrace();
+
+			}
+		}
+		
+		
+	}
+	
+	public static void deleteFileIfExist(String filePath) {
+		File file = new File(filePath);
+		 if (file.exists()){
+		     file.delete();
+		 }  
+
+	}
+	
+	
 }

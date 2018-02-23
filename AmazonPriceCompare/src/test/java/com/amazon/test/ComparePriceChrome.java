@@ -5,17 +5,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.annotations.Test;
 
 import com.amazon.methods.PageBase;
+import com.amazon.methods.SearchProductTuple;
 
 import junit.framework.Assert;
 
-public class ComparePrice {
+public class ComparePriceChrome {
+	
+	WebDriver driver;
+	PageBase pageBase;
 	
 	private static String URL_AMAZONE_HOME = "https://www.amazon.com/";
 	private static String URL_AMAZONE_DEPARTMENTS = "https://www.amazon.com/gp/site-directory/ref=nav_shopall_btn";
@@ -33,9 +37,16 @@ public class ComparePrice {
 	
 	
 	String fileName = System.getProperty("user.home")+"/Amazon-price-comparison.csv";
+	String urlFile = System.getProperty("user.home")+"/Amazon-price-comparison.csv";
+
     String CHROME_DRIVER_PATH = "//Users//300013717//Drivers//chromedriver";
+    String GECKO_DRIVER_PATH = "//Users//300013717//Drivers//geckodriver";
+
     
-	ArrayList<PriceList> OutputWriterList = new ArrayList<PriceList>();
+	ArrayList<PriceList> outputWriterList = new ArrayList<PriceList>();
+	
+	
+	
 	
 	@Test
 	public void test() throws InterruptedException {
@@ -43,27 +54,27 @@ public class ComparePrice {
 	    	
 	
 	    System.setProperty("webdriver.chrome.driver", CHROME_DRIVER_PATH);
+        //System.setProperty("webdriver.gecko.driver",GECKO_DRIVER_PATH);
 	    
 	    
 	    ChromeOptions options = new ChromeOptions();
 	    List<File> extensionFiles = new ArrayList<File>();
 		    options.addExtensions(new File("//Users//300013717//Downloads//MyFiles//PriceBlinkCouponsandPriceComparison.crx"), new File("//Users//300013717//Downloads//MyFiles//AMZ Seller Browser.crx"));
-	
+		    options.addArguments("--start-maximized");
+
 	    DesiredCapabilities capabilities = new DesiredCapabilities();
 	    capabilities.setCapability(ChromeOptions.CAPABILITY, options);
-	    ChromeDriver driver = new ChromeDriver(capabilities);
+	    driver = new ChromeDriver(capabilities);
 	    System.out.println("Opening extension");
-	    
-	    options.addArguments("--start-maximized");
+        
 	
 	    //WebDriver driver = new ChromeDriver(options);
-		PageBase pageBase = new PageBase(driver);
+		pageBase = new PageBase(driver);
 	    driver.get(URL_AMAZONE_HOME);
 		Assert.assertTrue(pageBase.isUrlLoaded(URL_AMAZONE_HOME));
 		//Assert.assertTrue(false);
 		Assert.assertTrue(pageBase.isElementPresent(HOME_ORDERS));
-	    pageBase.closeAllTabsExceptFirst();
-		
+ 		
 		
 		pageBase.clickOnDepartmentsHome();
 		Assert.assertTrue(pageBase.isUrlLoaded(URL_AMAZONE_DEPARTMENTS));
@@ -85,22 +96,22 @@ public class ComparePrice {
 		//size=10;
 		int pageNum =0;
 		OutputWriter.createFileWithHeaders(fileName);
-		do {
-			pageNum++;
-			pageBase.waitForPageLoad();
-			Thread.sleep(15000);
-			getCardioUrl = driver.getCurrentUrl();
-			System.out.println("The url of current page is "+getCardioUrl);
-			int size = pageBase.getTotalCardioItems();
-			size =2;
-		for (int i=1; i<=size; i++){
+			
+			List<SearchProductTuple> productDetails = new ArrayList<SearchProductTuple>();
+			productDetails = extractCardioItemsUrlAndRank();
+		for (int i=0; i<productDetails.size(); i++){
 			PriceList priceList1 = new PriceList();
 
 			try {
+				
+				
+			driver.get(productDetails.get(i).getProductUrl());	
+			String rank = productDetails.get(i).getRank();
 			
+			Thread.sleep(5000);
 			
-			String rank = pageBase.clickOnCardioItem(i);
 			System.out.println("\nProduct rank:"+rank);
+			System.out.println("\nProduct url:"+productDetails.get(i).getProductUrl());
 
 			//System.out.println("\nProduct Name:"+pageBase.getProductTitle());
 			
@@ -127,11 +138,9 @@ public class ComparePrice {
 	
 	                driver.get(url);
 	                pageBase.waitTillPageLoadedCompletely();
-	                
-	//                List<String> pricelist = new ArrayList<String>();
-	                
-	                if (((ChromeDriver) driver).getCurrentUrl().startsWith("https://www.ebay.com")) {
-		                	if(driver.findElementsByCssSelector("#ListViewInner>li").size()>0) {
+	                	                
+	                if (((ChromeDriver) driver).getCurrentUrl().startsWith("https://www.ebay.com")) { 
+		                	if(driver.findElements(By.cssSelector("#ListViewInner>li")).size()>0) {
 		
 		                		//System.out.println("\nThe price in ebay is "+pageBase.getAllEbayPrices());
 		                		priceList1.setEbayUrl( ((ChromeDriver) driver).getCurrentUrl());
@@ -189,34 +198,61 @@ public class ComparePrice {
 	        }
 	        
 	         
-			OutputWriterList.add(priceList1);
+			outputWriterList.add(priceList1);
 			
 	    
 			}
 			catch(Exception ex){
         		System.out.println(i+"th element failed on "+pageNum+" pagenumber");
         	}
-			driver.get(getCardioUrl);
-			System.out.println("The cradioUrl of "+pageNum+" page is "+getCardioUrl);
-		    Thread.sleep(5000);
-		    //	Assert.assertTrue(driver.getCurrentUrl().contains("Cardio-Life-Fitness"));
-		    	//Assert.assertTrue(pageBase.isElementPresent(FIRST_PRODUCT_PRICE));
-		        System.out.println("\n\n\n");
 		        
 				OutputWriter.writeOrAppendToFile(fileName, priceList1);
 
 			
 		}
-		if(!driver.getCurrentUrl().equals(getCardioUrl)) {
-			driver.get(getCardioUrl);
-			System.out.println("The cradioUrl of "+pageNum+" page is "+getCardioUrl);
-		    Thread.sleep(5000);
 		}
-		pageBase.waitTillNextPageLinkPresent();
-		}while(pageBase.clickOnNextPage());
-	    
 	
-		//OutputWriter.writeCsvFile(fileName,OutputWriterList);
+	
+	
+	public List<SearchProductTuple> extractCardioItemsUrlAndRank() {
+		List<String> urlList = getUrls();
+		List<SearchProductTuple> productDetails = null;
+		for (int i=0; i<urlList.size(); i++){					
+			driver.get(urlList.get(i));
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			pageBase.waitTillNextPageLinkPresent();
+			productDetails = pageBase.getAllCardioItemsRankAndUrl();			
 		}
-
+		return productDetails;
+	}
+	
+	public List<String> getUrls(){
+		List<String> urlList = new ArrayList<String>();
+		do {
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		int size  = pageBase.getTotalCardioItems();
+		System.out.println("Size: "+size);
+		String rank = pageBase.getRankAfterWaitingTillRankLoaded(size);
+		System.out.println("Rank: "+rank);
+		pageBase.waitTillNextPageLinkPresent();
+		String currentCardioUrl = driver.getCurrentUrl();
+		urlList.add(currentCardioUrl);
+		}while(pageBase.clickOnNextPage());
+		
+		return urlList;
+		
+	}
+	
+	
+	
 }
